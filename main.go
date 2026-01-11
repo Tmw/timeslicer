@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"iter"
 	"os"
 	"time"
@@ -45,11 +46,15 @@ func run() error {
 		return fmt.Errorf("error parsing duration: %w", err)
 	}
 
-	for date := range generate(start, end, interval) {
-		fmt.Println(date.Format(time.RFC3339))
-	}
+	printAll(os.Stdout, start, end, interval)
 
 	return nil
+}
+
+func printAll(out io.Writer, start, end time.Time, interval Interval) {
+	for date := range generate(start, end, interval) {
+		fmt.Fprintf(out, "%s\n", date.Format(time.RFC3339))
+	}
 }
 
 func generate(start, end time.Time, interval Interval) iter.Seq[time.Time] {
